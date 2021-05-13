@@ -22,63 +22,60 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../common/alert_dialogue.dart';
-import '../models/note_model.dart';
+import '../models/task_model.dart';
 import '../services/database.dart';
 
-class NoteEditor extends StatefulWidget {
+class TaskEditor extends StatefulWidget {
   final Database database;
-  final NoteModel noteModel;
+  final TaskModel taskModel;
 
-  const NoteEditor({Key key, this.database, this.noteModel}) : super(key: key);
+  const TaskEditor({Key key, this.database, this.taskModel}) : super(key: key);
 
   static Future<void> show(BuildContext context,
-      {Database database, NoteModel noteModel}) async {
+      {Database database, TaskModel taskModel}) async {
     database = (database == null)
         ? Provider.of<Database>(context, listen: false)
         : database;
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) =>
-            NoteEditor(database: database, noteModel: noteModel),
+            TaskEditor(database: database, taskModel: taskModel),
         fullscreenDialog: true,
       ),
     );
   }
 
   @override
-  _NoteEditorState createState() => _NoteEditorState();
+  _TaskEditorState createState() => _TaskEditorState();
 }
 
-class _NoteEditorState extends State<NoteEditor> {
+class _TaskEditorState extends State<TaskEditor> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  bool validForm() => _title.isNotEmpty || _content.isNotEmpty;
-
-  String _title = "";
+  bool validForm() => _content.isNotEmpty;
+  bool _done = false;
   String _content = "";
-
-  // If note is null, we are creating a new one
+  // If task is null, we are creating a new one
   @override
   void initState() {
     super.initState();
-    if (widget.noteModel != null) {
-      _title = widget.noteModel.title;
-      _content = widget.noteModel.content;
+    if (widget.taskModel != null) {
+      _done = widget.taskModel.done == 1;
+      _content = widget.taskModel.content;
     }
   }
-
   Future<void> _submit() async {
     if (_validateAndSaveForm()) {
       try {
-        if (widget.noteModel == null) {
-          final NoteModel note = NoteModel(title: _title, content: _content);
-          await widget.database.createNote(note);
+        if (widget.taskModel == null) {
+          final TaskModel task =
+              TaskModel(done: _done ? 1 : 0 , content: _content);
+          await widget.database.createTask(task);
         } else {
-          final Map<String, dynamic> updatedMap = widget.noteModel.toMap();
-          updatedMap["title"] = _title;
+          final Map<String, dynamic> updatedMap = widget.taskModel.toMap();
+          updatedMap["done"] = _done ? 1 : 0;
           updatedMap["content"] = _content;
 
-          await widget.database.updateNote(NoteModel.fromMap(updatedMap));
+          await widget.database.updateTask(TaskModel.fromMap(updatedMap));
         }
 
         Navigator.of(context).pop();
@@ -92,7 +89,6 @@ class _NoteEditorState extends State<NoteEditor> {
       }
     }
   }
-
   bool _validateAndSaveForm() {
     final FormState form = _formKey.currentState;
     if (form.validate()) {
@@ -101,17 +97,15 @@ class _NoteEditorState extends State<NoteEditor> {
     }
     return false;
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.noteModel == null ? "New note" : "Edit note"),
+        title: Text(widget.taskModel == null ? "New task" : "Edit task"),
       ),
       body: _buildContents(),
     );
   }
-
   Widget _buildContents() {
     return SingleChildScrollView(
       child: Padding(
@@ -125,7 +119,6 @@ class _NoteEditorState extends State<NoteEditor> {
       ),
     );
   }
-
   Widget _buildForm() {
     return Form(
       key: _formKey,
@@ -135,55 +128,60 @@ class _NoteEditorState extends State<NoteEditor> {
       ),
     );
   }
-
   List<Widget> _buildFormChildren() {
+    var checkbox;
     return [
-      Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: TextFormField(
-          decoration: InputDecoration(labelText: "Note title"),
-          style: TextStyle(
-            fontSize: 22,
-          ),
-          initialValue: _title,
-          validator: (value) {
-            _title = value;
-            return validForm() ? null : "Title and content can't be both empty";
-          },
-          autovalidateMode: AutovalidateMode.always,
-          onSaved: (value) => _title = value,
+      TextFormField(
+        scrollPadding: const EdgeInsets.all(10.0),
+        decoration: InputDecoration(
+          labelText: "Task content",
         ),
-      ),
 
+        style: TextStyle(
+          fontSize: 22,
+        ),
+
+        initialValue: _content,
+        validator: (value) {
+          _content = value;
+          return validForm() ? null : "Title and content can't be both empty";
+        },
+        autovalidateMode: AutovalidateMode.always,
+        onSaved: (value) => _content = value,
+      ),
       Padding(
           padding: const EdgeInsets.all(10.0),
-          child: TextFormField(
-          decoration: InputDecoration(labelText: "Note content"),
-          style: TextStyle(
-            fontSize: 22,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Done",
+                style: TextStyle(
+                    fontSize: 20
+                ),
+              ),
+              Checkbox(
+                  value: _done,
+                  onChanged: (value) {
+                    setState(() {
+                      _done = value;
+                    });
+                  })
+            ],
           ),
-          initialValue: _content,
-          validator: (value) {
-            _content = value;
-            return validForm() ? null : "Title and content can't be both empty";
-          },
-          autovalidateMode: AutovalidateMode.always,
-          onSaved: (value) => _content = value,
-        ),
       ),
-
       Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: TextButton(
+          padding: const EdgeInsets.all(10.0),
+      child: TextButton(
           onPressed: _submit,
           child: Text(
-          "Save",
-          style: TextStyle(
-          color: Colors.blue,
-          fontSize: 20
-          ),
+            "Save",
+            style: TextStyle(
+                color: Colors.blue,
+                fontSize: 20
+            ),
           ))
-    )
+      )
     ];
   }
 }

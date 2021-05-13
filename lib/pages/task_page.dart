@@ -17,18 +17,17 @@
     You should have received a copy of the GNU Affero General Public License
     along with NotoriousNote.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/note_model.dart';
+import 'package:flutter/material.dart';
+import '../models/task_model.dart';
 import '../services/database.dart';
-import 'note_editor.dart';
+import 'task_editor.dart';
 
-class MainPage extends StatefulWidget {
+class TaskPage extends StatefulWidget {
   final Database database;
 
-  const MainPage({Key key, this.database}) : super(key: key);
+  const TaskPage({Key key, this.database}) : super(key: key);
 
   static Future<void> show(BuildContext context, {Database database}) async {
     database = (database == null)
@@ -36,17 +35,16 @@ class MainPage extends StatefulWidget {
         : database;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => MainPage(database: database),
+        builder: (context) => TaskPage(database: database),
         fullscreenDialog: true,
       ),
     );
   }
-
   @override
-  _MainPageState createState() => _MainPageState();
+  _TaskPageState createState() => _TaskPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,85 +54,75 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await NoteEditor.show(context);
+          await TaskEditor.show(context);
           setState(() {});
         },
-        tooltip: "New note",
+        tooltip: "New task",
         child: Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildContents(BuildContext context) {
-    return FutureBuilder<List<NoteModel>>(
-      future: widget.database.listNotes(),
+    return FutureBuilder<List<TaskModel>>(
+      future: widget.database.listTasks(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
-          final List<NoteModel> items = snapshot.data;
+          final List<TaskModel> items = snapshot.data;
           if (items.isNotEmpty) {
             return ListView.separated(
                 itemBuilder: (context, index) => Card(
-                        child: InkWell(
+                    child: InkWell(
                       splashColor: Colors.grey,
-                      onTap: () => print("Note ${items[index].id} selected"),
+                      onTap: () => print("Task ${items[index].id} selected"),
                       child: Column(
                         children: <Widget>[
-
                           Padding(
-                            padding: const EdgeInsets.all(10.0),
-
-                            child: Text(
-                              items[index].title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20
-
-                              ),
-                            )
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Text(
                               items[index].content,
                               style: TextStyle(
-                                fontSize: 17
-
+                                fontSize: 20,
                               ),
                             ),
+
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () async {
-                                    await widget.database
-                                        .deleteNote(items[index].id);
-                                    setState(() {});
-                                  }),
-                              IconButton(
-                                  icon: Icon(Icons.archive), onPressed: null),
-                              IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () async {
-                                    await NoteEditor.show(context,
-                                        noteModel: items[index]);
-                                    setState(() {});
-                                  })
-                            ],
+                          Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () async {
+                                        await widget.database
+                                            .deleteTask(items[index].id);
+                                        setState(() {});
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () async {
+                                        await TaskEditor.show(context,
+                                            taskModel: items[index]);
+                                        setState(() {});
+                                      }),
+                                  Icon(items[index].done == 1 ? Icons.done: Icons.close, color: items[index].done == 1? Colors.green:Colors.red)
+                                ],
+                              ),
+
                           )
                         ],
                       ),
                     )),
                 separatorBuilder: (context, index) => Divider(
-                      height: 0.5,
-                    ),
+                  height: 0.5,
+                ),
                 itemCount: items.length);
           } else {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[Text("No notes"), Text("Please add a note")],
+                children: <Widget>[Text("No tasks"), Text("Please add a task")],
               ),
             );
           }
