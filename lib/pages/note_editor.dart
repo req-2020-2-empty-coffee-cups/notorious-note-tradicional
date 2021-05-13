@@ -59,6 +59,8 @@ class _NoteEditorState extends State<NoteEditor> {
   String _content = "";
   final int _invalidTagId = -1;
   int _selectedTagId;
+  int _archived = 0;
+  bool _archivedCheckbox = false;
 
   // If note is null, we are creating a new one
   @override
@@ -68,8 +70,11 @@ class _NoteEditorState extends State<NoteEditor> {
     if (widget.noteModel != null) {
       _title = widget.noteModel.title;
       _content = widget.noteModel.content;
-      _selectedTagId =
-          widget.noteModel.tag == null ? _invalidTagId : widget.noteModel.tag.id;
+      _archived = widget.noteModel.archived;
+      _archivedCheckbox = _archived == 1 ? true : false;
+      _selectedTagId = widget.noteModel.tag == null
+          ? _invalidTagId
+          : widget.noteModel.tag.id;
     }
   }
 
@@ -87,16 +92,17 @@ class _NoteEditorState extends State<NoteEditor> {
     if (_validateAndSaveForm()) {
       try {
         if (widget.noteModel == null) {
-          final NoteModel note = NoteModel(title: _title, content: _content);
+          final NoteModel note = NoteModel(title: _title, content: _content, archived: _archivedCheckbox ? 1 : 0);
           int noteId = await widget.database.createNote(note);
           await _updateNoteTag(noteId);
         } else {
-          final Map<String, dynamic> updatedMap = widget.noteModel.toMap();
+          NoteModel updatedNote = widget.noteModel.copyWith(archived: _archivedCheckbox ? 1 : 0);
+          final Map<String, dynamic> updatedMap = updatedNote.toMap();
           updatedMap["title"] = _title;
           updatedMap["content"] = _content;
 
           await widget.database.updateNote(NoteModel.fromMap(updatedMap));
-          await _updateNoteTag(widget.noteModel.id);
+          await _updateNoteTag(updatedNote.id);
         }
 
         Navigator.of(context).pop();
@@ -164,7 +170,21 @@ class _NoteEditorState extends State<NoteEditor> {
 
   List<Widget> _buildFormChildren() {
     return [
-      _buildTagsDropdown(),
+      Row(children: [
+        _buildTagsDropdown(),
+        Container(
+          child: Row(children: [
+            Checkbox(
+                value: _archivedCheckbox,
+                onChanged: (bool newValue) {
+                  setState(() {
+                    _archivedCheckbox = newValue;
+                  });
+                }),
+            Text("Archived"),
+          ]),
+        )
+      ]),
       TextFormField(
         decoration: InputDecoration(labelText: "Note title"),
         initialValue: _title,
@@ -202,10 +222,12 @@ class _NoteEditorState extends State<NoteEditor> {
                   value: tag.id,
                 );
               }).toList();
-              dropItems.insert(0, DropdownMenuItem(
-                child: Text("No tag"),
-                value: _invalidTagId,
-              ));
+              dropItems.insert(
+                  0,
+                  DropdownMenuItem(
+                    child: Text("No tag"),
+                    value: _invalidTagId,
+                  ));
               return DropdownButton(
                   items: dropItems,
                   value: _selectedTagId,

@@ -30,6 +30,7 @@ abstract class Database {
   Future<void> deleteNote(int id);
 
   Future<List<NoteModel>> listNotes();
+  Future<List<NoteModel>> listArchivedNotes();
 
   Future<int> createTag(TagModel tagModel);
   Future<TagModel> readTag(int id);

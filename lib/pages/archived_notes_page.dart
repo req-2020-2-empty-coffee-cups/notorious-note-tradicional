@@ -25,10 +25,10 @@ import '../models/note_model.dart';
 import '../services/database.dart';
 import 'note_editor.dart';
 
-class NotesPage extends StatefulWidget {
+class ArchivedNotesPage extends StatefulWidget {
   final Database database;
 
-  const NotesPage({Key key, this.database}) : super(key: key);
+  const ArchivedNotesPage({Key key, this.database}) : super(key: key);
 
   static Future<void> show(BuildContext context, {Database database}) async {
     database = (database == null)
@@ -36,17 +36,17 @@ class NotesPage extends StatefulWidget {
         : database;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => NotesPage(database: database),
+        builder: (context) => ArchivedNotesPage(database: database),
         fullscreenDialog: true,
       ),
     );
   }
 
   @override
-  _NotesPageState createState() => _NotesPageState();
+  _ArchivedNotesPageState createState() => _ArchivedNotesPageState();
 }
 
-class _NotesPageState extends State<NotesPage> {
+class _ArchivedNotesPageState extends State<ArchivedNotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,14 +67,14 @@ class _NotesPageState extends State<NotesPage> {
 
   Widget _buildContents(BuildContext context) {
     return FutureBuilder<List<NoteModel>>(
-      future: widget.database.listNotes(),
+      future: widget.database.listArchivedNotes(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           final List<NoteModel> items = snapshot.data;
           if (items.isNotEmpty) {
             return ListView.separated(
                 itemBuilder: (context, index) => Card(
-                        child: InkWell(
+                    child: InkWell(
                       splashColor: Colors.grey,
                       onTap: () => print("Note ${items[index].id} selected"),
                       child: Column(
@@ -108,14 +108,14 @@ class _NotesPageState extends State<NotesPage> {
                       ),
                     )),
                 separatorBuilder: (context, index) => Divider(
-                      height: 0.5,
-                    ),
+                  height: 0.5,
+                ),
                 itemCount: items.length);
           } else {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[Text("No notes"), Text("Please add a note")],
+                children: <Widget>[Text("No notes are archived")],
               ),
             );
           }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notorious_note/pages/archived_notes_page.dart';
 import 'package:notorious_note/pages/notes_page.dart';
 import 'package:notorious_note/pages/tags_page.dart';
 import 'package:notorious_note/pages/test_page.dart';
@@ -49,6 +50,13 @@ class _HomePageState extends State<HomePage> {
           ),
           pageBarItem:
               BottomNavigationBarItem(icon: Icon(Icons.note), label: "Notes")),
+      BottomNavigatorPageItem(
+          pageObject: ArchivedNotesPage(
+            database: Provider.of<Database>(context, listen: false),
+          ),
+          pageAppBar: AppBar(title: Text("Archived Notes")),
+          pageBarItem: BottomNavigationBarItem(
+              icon: Icon(Icons.archive), label: "Archived Notes")),
       BottomNavigatorPageItem(
           pageObject: TagsPage(
             database: Provider.of<Database>(context, listen: false),

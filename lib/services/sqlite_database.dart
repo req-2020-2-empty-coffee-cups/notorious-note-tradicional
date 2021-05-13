@@ -138,7 +138,23 @@ CREATE TABLE IF NOT EXISTS note_tags(
   @override
   Future<List<NoteModel>> listNotes() async {
     List<Map<String, dynamic>> results =
-        await db.rawQuery("SELECT * FROM notes");
+        await db.rawQuery("SELECT * FROM notes WHERE archived = ?", [0]);
+    List<NoteModel> notes = results
+        .map((Map<String, dynamic> map) => NoteModel.fromMap(map))
+        .toList();
+    for (var i = 0; i < notes.length; i++) {
+      TagModel tagModel = await getTagFromNote(notes[i].id);
+      if (tagModel != null) {
+        notes[i] = notes[i].copyWith(tag: tagModel);
+      }
+    }
+    return notes;
+  }
+
+  @override
+  Future<List<NoteModel>> listArchivedNotes() async {
+    List<Map<String, dynamic>> results =
+        await db.rawQuery("SELECT * FROM notes WHERE archived = ?", [1]);
     List<NoteModel> notes = results
         .map((Map<String, dynamic> map) => NoteModel.fromMap(map))
         .toList();
