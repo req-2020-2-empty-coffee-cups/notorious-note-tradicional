@@ -51,12 +51,9 @@ class TaskEditor extends StatefulWidget {
 
 class _TaskEditorState extends State<TaskEditor> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool validForm() => _content.isNotEmpty;
-
   bool _done = false;
   String _content = "";
-
   // If task is null, we are creating a new one
   @override
   void initState() {
@@ -66,7 +63,6 @@ class _TaskEditorState extends State<TaskEditor> {
       _content = widget.taskModel.content;
     }
   }
-
   Future<void> _submit() async {
     if (_validateAndSaveForm()) {
       try {
@@ -93,7 +89,6 @@ class _TaskEditorState extends State<TaskEditor> {
       }
     }
   }
-
   bool _validateAndSaveForm() {
     final FormState form = _formKey.currentState;
     if (form.validate()) {
@@ -102,25 +97,15 @@ class _TaskEditorState extends State<TaskEditor> {
     }
     return false;
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.taskModel == null ? "New task" : "Edit task"),
-        actions: <Widget>[
-          TextButton(
-              onPressed: _submit,
-              child: Text(
-                "Save",
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
       ),
       body: _buildContents(),
     );
   }
-
   Widget _buildContents() {
     return SingleChildScrollView(
       child: Padding(
@@ -134,7 +119,6 @@ class _TaskEditorState extends State<TaskEditor> {
       ),
     );
   }
-
   Widget _buildForm() {
     return Form(
       key: _formKey,
@@ -144,12 +128,19 @@ class _TaskEditorState extends State<TaskEditor> {
       ),
     );
   }
-
   List<Widget> _buildFormChildren() {
     var checkbox;
     return [
       TextFormField(
-        decoration: InputDecoration(labelText: "Note content"),
+        scrollPadding: const EdgeInsets.all(10.0),
+        decoration: InputDecoration(
+          labelText: "Task content",
+        ),
+
+        style: TextStyle(
+          fontSize: 22,
+        ),
+
         initialValue: _content,
         validator: (value) {
           _content = value;
@@ -158,18 +149,38 @@ class _TaskEditorState extends State<TaskEditor> {
         autovalidateMode: AutovalidateMode.always,
         onSaved: (value) => _content = value,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text("Done"),
-          Checkbox(
-              value: _done,
-              onChanged: (value) {
-                setState(() {
-                  _done = value;
-                });
-              })
-        ],
+      Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Done",
+                style: TextStyle(
+                    fontSize: 20
+                ),
+              ),
+              Checkbox(
+                  value: _done,
+                  onChanged: (value) {
+                    setState(() {
+                      _done = value;
+                    });
+                  })
+            ],
+          ),
+      ),
+      Padding(
+          padding: const EdgeInsets.all(10.0),
+      child: TextButton(
+          onPressed: _submit,
+          child: Text(
+            "Save",
+            style: TextStyle(
+                color: Colors.blue,
+                fontSize: 20
+            ),
+          ))
       )
     ];
   }

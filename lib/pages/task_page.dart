@@ -77,26 +77,39 @@ class _TaskPageState extends State<TaskPage> {
                       onTap: () => print("Task ${items[index].id} selected"),
                       child: Column(
                         children: <Widget>[
-                          Text(items[index].content),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () async {
-                                    await widget.database
-                                        .deleteTask(items[index].id);
-                                    setState(() {});
-                                  }),
-                              IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () async {
-                                    await TaskEditor.show(context,
-                                        taskModel: items[index]);
-                                    setState(() {});
-                                  }),
-                              Icon(items[index].done == 1 ? Icons.done: Icons.close, color: items[index].done == 1? Colors.green:Colors.red)
-                            ],
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              items[index].content,
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () async {
+                                        await widget.database
+                                            .deleteTask(items[index].id);
+                                        setState(() {});
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () async {
+                                        await TaskEditor.show(context,
+                                            taskModel: items[index]);
+                                        setState(() {});
+                                      }),
+                                  Icon(items[index].done == 1 ? Icons.done: Icons.close, color: items[index].done == 1? Colors.green:Colors.red)
+                                ],
+                              ),
+
                           )
                         ],
                       ),
