@@ -19,6 +19,7 @@
 */
 
 import 'package:flutter/material.dart';
+import 'package:notorious_note/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/main_page.dart';
@@ -43,8 +44,7 @@ class MyApp extends StatelessWidget {
           future: Provider.of<Database>(context, listen: false).init(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return MainPage(
-                  database: Provider.of<Database>(context, listen: false));
+              return HomePage();
             } else if (snapshot.hasError) {
               return Container(
                 child: Column(children: <Widget>[

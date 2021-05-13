@@ -50,9 +50,6 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Notes"),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _buildContents(context),
