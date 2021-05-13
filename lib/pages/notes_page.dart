@@ -79,6 +79,7 @@ class _NotesPageState extends State<NotesPage> {
                       onTap: () => print("Note ${items[index].id} selected"),
                       child: Column(
                         children: <Widget>[
+                          Row(children: _buildTagName(items[index])),
                           Text(
                             items[index].title,
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -127,5 +128,17 @@ class _NotesPageState extends State<NotesPage> {
         }
       },
     );
+  }
+
+  List<Widget> _buildTagName(NoteModel noteModel) {
+    if (noteModel.tag == null)
+      return [
+        Text("")
+      ];
+    else
+      return [
+        Icon(Icons.tag),
+        Text(noteModel.tag.name)
+      ];
   }
 }

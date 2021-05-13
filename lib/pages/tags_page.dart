@@ -94,8 +94,6 @@ class _TagsPageState extends State<TagsPage> {
                                     setState(() {});
                                   }),
                               IconButton(
-                                  icon: Icon(Icons.archive), onPressed: null),
-                              IconButton(
                                   icon: Icon(Icons.edit),
                                   onPressed: () async {
                                     await TagEditor.show(context,

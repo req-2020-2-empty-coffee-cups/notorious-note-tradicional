@@ -72,13 +72,13 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> createNote(NoteModel noteModel) async {
+  Future<int> createNote(NoteModel noteModel) async {
     Map<String, dynamic> noteMap = noteModel.toMap();
     noteMap.remove("id");
     noteMap.remove("creation");
     noteMap.remove("archived");
     print("try to insert $noteMap");
-    await db.insert("notes", noteMap);
+    return await db.insert("notes", noteMap);
   }
 
   @override
@@ -106,11 +106,11 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> createTag(TagModel tagModel) async {
-      Map<String, dynamic> tagMap = tagModel.toMap();
-      tagMap.remove("id");
-      print("try to insert $tagMap");
-      await db.insert("tags", tagMap);
+  Future<int> createTag(TagModel tagModel) async {
+    Map<String, dynamic> tagMap = tagModel.toMap();
+    tagMap.remove("id");
+    print("try to insert $tagMap");
+    return await db.insert("tags", tagMap);
   }
 
   @override
@@ -127,8 +127,7 @@ CREATE TABLE IF NOT EXISTS note_tags(
   Future<void> updateTag(TagModel tagModel) async {
     Map<String, dynamic> tagMap = tagModel.toMap();
     print("try to insert $tagMap");
-    await db
-        .update("tags", tagMap, where: "id = ?", whereArgs: [tagModel.id]);
+    await db.update("tags", tagMap, where: "id = ?", whereArgs: [tagModel.id]);
   }
 
   @override
@@ -137,19 +136,19 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> getTagsFromNote() {
-    // TODO: implement getTagsFromNote
-    throw UnimplementedError();
-  }
-
-  @override
   Future<List<NoteModel>> listNotes() async {
     List<Map<String, dynamic>> results =
         await db.rawQuery("SELECT * FROM notes");
-    print("Notes $results");
-    return results
+    List<NoteModel> notes = results
         .map((Map<String, dynamic> map) => NoteModel.fromMap(map))
         .toList();
+    for (var i = 0; i < notes.length; i++) {
+      TagModel tagModel = await getTagFromNote(notes[i].id);
+      if (tagModel != null) {
+        notes[i] = notes[i].copyWith(tag: tagModel);
+      }
+    }
+    return notes;
   }
 
   @override
@@ -163,10 +162,28 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> tieTagToNote() {
-    // TODO: implement tieTagToNote
-    throw UnimplementedError();
+  Future<void> tieTagToNote(int noteId, int tagId) async {
+    final TagModel currentTag = await getTagFromNote(noteId);
+    if (currentTag != null) await untieTagFromNote(noteId);
+    await db.rawInsert("INSERT INTO note_tags (note_id, tag_id) values (?, ?)",
+        [noteId, tagId]);
   }
 
+  @override
+  Future<TagModel> getTagFromNote(int noteId) async {
+    final List<Map<String, Object>> result = await db
+        .rawQuery("SELECT tag_id FROM note_tags WHERE note_id = ?", [noteId]);
 
+    if (result.isEmpty) {
+      return null;
+    } else {
+      int tagId = result[0]["tag_id"];
+      return await readTag(tagId);
+    }
+  }
+
+  @override
+  Future<void> untieTagFromNote(int noteId) async {
+    await db.delete("note_tags", where: "note_id = ?", whereArgs: [noteId]);
+  }
 }

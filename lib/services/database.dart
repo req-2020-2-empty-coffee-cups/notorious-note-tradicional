@@ -24,20 +24,21 @@ import '../models/tag_model.dart';
 abstract class Database {
   Future<int> init();
 
-  Future<void> createNote(NoteModel noteModel);
+  Future<int> createNote(NoteModel noteModel);
   Future<NoteModel> readNote(int id);
   Future<void> updateNote(NoteModel noteModel);
   Future<void> deleteNote(int id);
 
   Future<List<NoteModel>> listNotes();
 
-  Future<void> createTag(TagModel tagModel);
+  Future<int> createTag(TagModel tagModel);
   Future<TagModel> readTag(int id);
   Future<void> updateTag(TagModel tagModel);
   Future<void> deleteTag(int id);
 
   Future<List<TagModel>> listTags();
 
-  Future<void> tieTagToNote();
-  Future<void> getTagsFromNote();
+  Future<void> tieTagToNote(int noteId, int tagId);
+  Future<void> untieTagFromNote(int noteId);
+  Future<TagModel> getTagFromNote(int noteId);
 }

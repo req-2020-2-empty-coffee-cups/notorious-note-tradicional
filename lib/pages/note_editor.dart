@@ -19,6 +19,7 @@
 */
 
 import 'package:flutter/material.dart';
+import 'package:notorious_note/models/tag_model.dart';
 import 'package:provider/provider.dart';
 
 import '../common/alert_dialogue.dart';
@@ -56,14 +57,29 @@ class _NoteEditorState extends State<NoteEditor> {
 
   String _title = "";
   String _content = "";
+  final int _invalidTagId = -1;
+  int _selectedTagId;
 
   // If note is null, we are creating a new one
   @override
   void initState() {
     super.initState();
+    _selectedTagId = _invalidTagId;
     if (widget.noteModel != null) {
       _title = widget.noteModel.title;
       _content = widget.noteModel.content;
+      _selectedTagId =
+          widget.noteModel.tag == null ? _invalidTagId : widget.noteModel.tag.id;
+    }
+  }
+
+  Future<void> _updateNoteTag(int noteId) async {
+    if (_selectedTagId != _invalidTagId) {
+      print("Try to tie tag $_selectedTagId to note $noteId");
+      await widget.database.tieTagToNote(noteId, _selectedTagId);
+    } else if (_selectedTagId != null) {
+      print("Try to untie tag $_selectedTagId from note $noteId");
+      await widget.database.untieTagFromNote(noteId);
     }
   }
 
@@ -72,13 +88,15 @@ class _NoteEditorState extends State<NoteEditor> {
       try {
         if (widget.noteModel == null) {
           final NoteModel note = NoteModel(title: _title, content: _content);
-          await widget.database.createNote(note);
+          int noteId = await widget.database.createNote(note);
+          await _updateNoteTag(noteId);
         } else {
           final Map<String, dynamic> updatedMap = widget.noteModel.toMap();
           updatedMap["title"] = _title;
           updatedMap["content"] = _content;
 
           await widget.database.updateNote(NoteModel.fromMap(updatedMap));
+          await _updateNoteTag(widget.noteModel.id);
         }
 
         Navigator.of(context).pop();
@@ -146,6 +164,7 @@ class _NoteEditorState extends State<NoteEditor> {
 
   List<Widget> _buildFormChildren() {
     return [
+      _buildTagsDropdown(),
       TextFormField(
         decoration: InputDecoration(labelText: "Note title"),
         initialValue: _title,
@@ -167,5 +186,40 @@ class _NoteEditorState extends State<NoteEditor> {
         onSaved: (value) => _content = value,
       ),
     ];
+  }
+
+  Widget _buildTagsDropdown() {
+    return FutureBuilder<List<TagModel>>(
+        future: widget.database.listTags(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            final List<TagModel> items = snapshot.data;
+            if (items.isNotEmpty) {
+              List<DropdownMenuItem<int>> dropItems =
+                  items.map<DropdownMenuItem<int>>((TagModel tag) {
+                return DropdownMenuItem(
+                  child: Text(tag.name),
+                  value: tag.id,
+                );
+              }).toList();
+              dropItems.insert(0, DropdownMenuItem(
+                child: Text("No tag"),
+                value: _invalidTagId,
+              ));
+              return DropdownButton(
+                  items: dropItems,
+                  value: _selectedTagId,
+                  onChanged: (int newSelectedValue) {
+                    setState(() {
+                      _selectedTagId = newSelectedValue;
+                    });
+                  });
+            } else {
+              return Text("No tags");
+            }
+          } else {
+            return CircularProgressIndicator();
+          }
+        });
   }
 }
