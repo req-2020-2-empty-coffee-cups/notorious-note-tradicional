@@ -32,9 +32,9 @@ abstract class Database {
   Future<List<NoteModel>> listNotes();
 
   Future<void> createTag(TagModel tagModel);
-  Future<TagModel> readTag();
-  Future<void> updateTag();
-  Future<void> deleteTag();
+  Future<TagModel> readTag(int id);
+  Future<void> updateTag(TagModel tagModel);
+  Future<void> deleteTag(int id);
 
   Future<List<TagModel>> listTags();
 

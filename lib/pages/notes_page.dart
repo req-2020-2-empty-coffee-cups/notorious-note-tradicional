@@ -25,10 +25,10 @@ import '../models/note_model.dart';
 import '../services/database.dart';
 import 'note_editor.dart';
 
-class MainPage extends StatefulWidget {
+class NotesPage extends StatefulWidget {
   final Database database;
 
-  const MainPage({Key key, this.database}) : super(key: key);
+  const NotesPage({Key key, this.database}) : super(key: key);
 
   static Future<void> show(BuildContext context, {Database database}) async {
     database = (database == null)
@@ -36,17 +36,17 @@ class MainPage extends StatefulWidget {
         : database;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => MainPage(database: database),
+        builder: (context) => NotesPage(database: database),
         fullscreenDialog: true,
       ),
     );
   }
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _NotesPageState createState() => _NotesPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

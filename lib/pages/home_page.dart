@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notorious_note/pages/main_page.dart';
+import 'package:notorious_note/pages/notes_page.dart';
+import 'package:notorious_note/pages/tags_page.dart';
 import 'package:notorious_note/pages/test_page.dart';
 import 'package:notorious_note/services/database.dart';
 import 'package:provider/provider.dart';
@@ -41,18 +42,20 @@ class _HomePageState extends State<HomePage> {
   void _buildPageList(BuildContext context) {
     _pageArray = [
       BottomNavigatorPageItem(
-          pageObject:
-              MainPage(database: Provider.of<Database>(context, listen: false)),
+          pageObject: NotesPage(
+              database: Provider.of<Database>(context, listen: false)),
           pageAppBar: AppBar(
             title: Text("Notes"),
           ),
           pageBarItem:
               BottomNavigationBarItem(icon: Icon(Icons.note), label: "Notes")),
       BottomNavigatorPageItem(
-          pageObject: TestPage(),
-          pageAppBar: AppBar(title: Text("Test Page")),
+          pageObject: TagsPage(
+            database: Provider.of<Database>(context, listen: false),
+          ),
+          pageAppBar: AppBar(title: Text("Tags")),
           pageBarItem: BottomNavigationBarItem(
-              icon: Icon(Icons.access_alarm_outlined), label: "Test")),
+          icon: Icon(Icons.tag), label: "Tags")),
     ];
   }
 }

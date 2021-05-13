@@ -106,20 +106,39 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> deleteTag() {
-    // TODO: implement deleteTag
-    throw UnimplementedError();
+  Future<void> createTag(TagModel tagModel) async {
+      Map<String, dynamic> tagMap = tagModel.toMap();
+      tagMap.remove("id");
+      print("try to insert $tagMap");
+      await db.insert("tags", tagMap);
+  }
+
+  @override
+  Future<TagModel> readTag(int id) async {
+    final List<Map<String, Object>> result =
+        await db.query("tags", where: "id = ?", whereArgs: [id]);
+    if (result.isEmpty)
+      return null;
+    else
+      return TagModel.fromMap(result[0]);
+  }
+
+  @override
+  Future<void> updateTag(TagModel tagModel) async {
+    Map<String, dynamic> tagMap = tagModel.toMap();
+    print("try to insert $tagMap");
+    await db
+        .update("tags", tagMap, where: "id = ?", whereArgs: [tagModel.id]);
+  }
+
+  @override
+  Future<void> deleteTag(int id) async {
+    await db.delete("tags", where: "id = ?", whereArgs: [id]);
   }
 
   @override
   Future<void> getTagsFromNote() {
     // TODO: implement getTagsFromNote
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> createTag(TagModel tagModel) {
-    // TODO: implement createTag
     throw UnimplementedError();
   }
 
@@ -134,15 +153,13 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<List<TagModel>> listTags() {
-    // TODO: implement listTags
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TagModel> readTag() {
-    // TODO: implement readTag
-    throw UnimplementedError();
+  Future<List<TagModel>> listTags() async {
+    List<Map<String, dynamic>> results =
+        await db.rawQuery("SELECT * FROM tags");
+    print("Tags $results");
+    return results
+        .map((Map<String, dynamic> map) => TagModel.fromMap(map))
+        .toList();
   }
 
   @override
@@ -151,9 +168,5 @@ CREATE TABLE IF NOT EXISTS note_tags(
     throw UnimplementedError();
   }
 
-  @override
-  Future<void> updateTag() {
-    // TODO: implement updateTag
-    throw UnimplementedError();
-  }
+
 }

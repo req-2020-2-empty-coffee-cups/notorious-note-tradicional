@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:notorious_note/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/main_page.dart';
+import 'pages/notes_page.dart';
 import 'services/database.dart';
 import 'services/sqlite_database.dart';
 
