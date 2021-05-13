@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notorious_note/pages/main_page.dart';
+import 'package:notorious_note/pages/task_page.dart';
 import 'package:notorious_note/pages/test_page.dart';
 import 'package:notorious_note/services/database.dart';
 import 'package:provider/provider.dart';
@@ -53,6 +54,11 @@ class _HomePageState extends State<HomePage> {
           pageAppBar: AppBar(title: Text("Test Page")),
           pageBarItem: BottomNavigationBarItem(
               icon: Icon(Icons.access_alarm_outlined), label: "Test")),
+      BottomNavigatorPageItem(
+          pageObject: TaskPage(database: Provider.of<Database>(context, listen: false)),
+          pageAppBar: AppBar(title: Text("Tasks")),
+          pageBarItem: BottomNavigationBarItem(
+              icon: Icon(Icons.assignment_rounded), label: "Tarefas")),
     ];
   }
 }

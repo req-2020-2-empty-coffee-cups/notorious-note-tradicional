@@ -20,6 +20,7 @@
 
 import '../models/note_model.dart';
 import '../models/tag_model.dart';
+import '../models/task_model.dart';
 
 abstract class Database {
   Future<int> init();
@@ -40,4 +41,13 @@ abstract class Database {
 
   Future<void> tieTagToNote();
   Future<void> getTagsFromNote();
+
+  Future<void> createTask(TaskModel taskModel);
+  Future<TaskModel> readTask(int id);
+  Future<void> updateTask(TaskModel taskModel);
+  Future<void> deleteTask(int id);
+  Future<List<TaskModel>> listTasks();
+
+
+
 }
