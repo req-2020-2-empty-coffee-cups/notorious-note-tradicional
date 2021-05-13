@@ -79,31 +79,13 @@ class _MainPageState extends State<MainPage> {
                       onTap: () => print("Note ${items[index].id} selected"),
                       child: Column(
                         children: <Widget>[
-
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-
-                            child: Text(
-                              items[index].title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20
-
-                              ),
-                            )
+                          Text(
+                            items[index].title,
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              items[index].content,
-                              style: TextStyle(
-                                fontSize: 17
-
-                              ),
-                            ),
-                          ),
+                          Text(items[index].content),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               IconButton(
                                   icon: Icon(Icons.delete),
