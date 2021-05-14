@@ -29,6 +29,8 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        fixedColor: Colors.indigo,
         items: _pageArray.map((item) => item.pageBarItem).toList(),
         currentIndex: _pageIndex,
         onTap: (index) {
@@ -68,7 +70,7 @@ class _HomePageState extends State<HomePage> {
           pageObject: TaskPage(database: Provider.of<Database>(context, listen: false)),
           pageAppBar: AppBar(title: Text("Tasks")),
           pageBarItem: BottomNavigationBarItem(
-              icon: Icon(Icons.assignment_rounded), label: "Tarefas")),
+              icon: Icon(Icons.assignment_rounded), label: "Tasks")),
     ];
   }
 }
