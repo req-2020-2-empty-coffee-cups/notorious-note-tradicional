@@ -25,10 +25,10 @@ import '../models/note_model.dart';
 import '../services/database.dart';
 import 'note_editor.dart';
 
-class MainPage extends StatefulWidget {
+class NotesPage extends StatefulWidget {
   final Database database;
 
-  const MainPage({Key key, this.database}) : super(key: key);
+  const NotesPage({Key key, this.database}) : super(key: key);
 
   static Future<void> show(BuildContext context, {Database database}) async {
     database = (database == null)
@@ -36,17 +36,17 @@ class MainPage extends StatefulWidget {
         : database;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => MainPage(database: database),
+        builder: (context) => NotesPage(database: database),
         fullscreenDialog: true,
       ),
     );
   }
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _NotesPageState createState() => _NotesPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +79,7 @@ class _MainPageState extends State<MainPage> {
                       onTap: () => print("Note ${items[index].id} selected"),
                       child: Column(
                         children: <Widget>[
+                          Row(children: _buildTagName(items[index])),
                           Text(
                             items[index].title,
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -94,8 +95,6 @@ class _MainPageState extends State<MainPage> {
                                         .deleteNote(items[index].id);
                                     setState(() {});
                                   }),
-                              IconButton(
-                                  icon: Icon(Icons.archive), onPressed: null),
                               IconButton(
                                   icon: Icon(Icons.edit),
                                   onPressed: () async {
@@ -127,5 +126,17 @@ class _MainPageState extends State<MainPage> {
         }
       },
     );
+  }
+
+  List<Widget> _buildTagName(NoteModel noteModel) {
+    if (noteModel.tag == null)
+      return [
+        Text("")
+      ];
+    else
+      return [
+        Icon(Icons.tag),
+        Text(noteModel.tag.name)
+      ];
   }
 }

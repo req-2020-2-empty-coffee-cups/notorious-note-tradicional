@@ -72,13 +72,13 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> createNote(NoteModel noteModel) async {
+  Future<int> createNote(NoteModel noteModel) async {
     Map<String, dynamic> noteMap = noteModel.toMap();
     noteMap.remove("id");
     noteMap.remove("creation");
     noteMap.remove("archived");
     print("try to insert $noteMap");
-    await db.insert("notes", noteMap);
+    return await db.insert("notes", noteMap);
   }
 
   @override
@@ -106,54 +106,100 @@ CREATE TABLE IF NOT EXISTS note_tags(
   }
 
   @override
-  Future<void> deleteTag() {
-    // TODO: implement deleteTag
-    throw UnimplementedError();
+  Future<int> createTag(TagModel tagModel) async {
+    Map<String, dynamic> tagMap = tagModel.toMap();
+    tagMap.remove("id");
+    print("try to insert $tagMap");
+    return await db.insert("tags", tagMap);
   }
 
   @override
-  Future<void> getTagsFromNote() {
-    // TODO: implement getTagsFromNote
-    throw UnimplementedError();
+  Future<TagModel> readTag(int id) async {
+    final List<Map<String, Object>> result =
+        await db.query("tags", where: "id = ?", whereArgs: [id]);
+    if (result.isEmpty)
+      return null;
+    else
+      return TagModel.fromMap(result[0]);
   }
 
   @override
-  Future<void> createTag(TagModel tagModel) {
-    // TODO: implement createTag
-    throw UnimplementedError();
+  Future<void> updateTag(TagModel tagModel) async {
+    Map<String, dynamic> tagMap = tagModel.toMap();
+    print("try to insert $tagMap");
+    await db.update("tags", tagMap, where: "id = ?", whereArgs: [tagModel.id]);
+  }
+
+  @override
+  Future<void> deleteTag(int id) async {
+    await db.delete("tags", where: "id = ?", whereArgs: [id]);
   }
 
   @override
   Future<List<NoteModel>> listNotes() async {
     List<Map<String, dynamic>> results =
-        await db.rawQuery("SELECT * FROM notes");
-    print("Notes $results");
-    return results
+        await db.rawQuery("SELECT * FROM notes WHERE archived = ?", [0]);
+    List<NoteModel> notes = results
         .map((Map<String, dynamic> map) => NoteModel.fromMap(map))
+        .toList();
+    for (var i = 0; i < notes.length; i++) {
+      TagModel tagModel = await getTagFromNote(notes[i].id);
+      if (tagModel != null) {
+        notes[i] = notes[i].copyWith(tag: tagModel);
+      }
+    }
+    return notes;
+  }
+
+  @override
+  Future<List<NoteModel>> listArchivedNotes() async {
+    List<Map<String, dynamic>> results =
+        await db.rawQuery("SELECT * FROM notes WHERE archived = ?", [1]);
+    List<NoteModel> notes = results
+        .map((Map<String, dynamic> map) => NoteModel.fromMap(map))
+        .toList();
+    for (var i = 0; i < notes.length; i++) {
+      TagModel tagModel = await getTagFromNote(notes[i].id);
+      if (tagModel != null) {
+        notes[i] = notes[i].copyWith(tag: tagModel);
+      }
+    }
+    return notes;
+  }
+
+  @override
+  Future<List<TagModel>> listTags() async {
+    List<Map<String, dynamic>> results =
+        await db.rawQuery("SELECT * FROM tags");
+    print("Tags $results");
+    return results
+        .map((Map<String, dynamic> map) => TagModel.fromMap(map))
         .toList();
   }
 
   @override
-  Future<List<TagModel>> listTags() {
-    // TODO: implement listTags
-    throw UnimplementedError();
+  Future<void> tieTagToNote(int noteId, int tagId) async {
+    final TagModel currentTag = await getTagFromNote(noteId);
+    if (currentTag != null) await untieTagFromNote(noteId);
+    await db.rawInsert("INSERT INTO note_tags (note_id, tag_id) values (?, ?)",
+        [noteId, tagId]);
   }
 
   @override
-  Future<TagModel> readTag() {
-    // TODO: implement readTag
-    throw UnimplementedError();
+  Future<TagModel> getTagFromNote(int noteId) async {
+    final List<Map<String, Object>> result = await db
+        .rawQuery("SELECT tag_id FROM note_tags WHERE note_id = ?", [noteId]);
+
+    if (result.isEmpty) {
+      return null;
+    } else {
+      int tagId = result[0]["tag_id"];
+      return await readTag(tagId);
+    }
   }
 
   @override
-  Future<void> tieTagToNote() {
-    // TODO: implement tieTagToNote
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> updateTag() {
-    // TODO: implement updateTag
-    throw UnimplementedError();
+  Future<void> untieTagFromNote(int noteId) async {
+    await db.delete("note_tags", where: "note_id = ?", whereArgs: [noteId]);
   }
 }

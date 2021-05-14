@@ -24,9 +24,8 @@ class TagModel {
   final int id;
   final String name;
 
-  TagModel({@required this.id, @required this.name})
-      : assert(id != null),
-        assert(name != null);
+  TagModel({this.id, @required this.name})
+      : assert(name != null);
 
   Map<String, dynamic> toMap() {
     return {"id": this.id, "name": this.name};

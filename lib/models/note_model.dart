@@ -20,6 +20,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'tag_model.dart';
+
 class NoteModel {
   final int id;
   final String title;
@@ -27,12 +29,15 @@ class NoteModel {
   final String creation;
   final int archived;
 
+  final TagModel tag;
+
   NoteModel(
       {this.id,
       @required this.title,
       @required this.content,
       this.creation,
-      this.archived})
+      this.archived,
+      this.tag})
       : assert(title != null || content != null);
 
   Map<String, dynamic> toMap() {
@@ -61,5 +66,22 @@ class NoteModel {
         content: content,
         creation: creation,
         archived: archived);
+  }
+
+  NoteModel copyWith({
+    int id,
+    String title,
+    String content,
+    String creation,
+    int archived,
+    TagModel tag,
+  }) {
+    return NoteModel(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        content: content ?? this.content,
+        creation: creation ?? this.creation,
+        archived: archived ?? this.archived,
+        tag: tag ?? this.tag);
   }
 }
