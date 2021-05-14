@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notorious_note/pages/archived_notes_page.dart';
 import 'package:notorious_note/pages/notes_page.dart';
 import 'package:notorious_note/pages/tags_page.dart';
-import 'package:notorious_note/pages/main_page.dart';
 import 'package:notorious_note/pages/task_page.dart';
-import 'package:notorious_note/pages/test_page.dart';
 import 'package:notorious_note/services/database.dart';
 import 'package:provider/provider.dart';
 
