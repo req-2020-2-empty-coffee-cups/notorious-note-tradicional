@@ -131,14 +131,6 @@ class _NoteEditorState extends State<NoteEditor> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.noteModel == null ? "New note" : "Edit note"),
-        actions: <Widget>[
-          TextButton(
-              onPressed: _submit,
-              child: Text(
-                "Save",
-                style: TextStyle(color: Colors.white),
-              ))
-        ],
       ),
       body: _buildContents(),
     );
@@ -195,16 +187,36 @@ class _NoteEditorState extends State<NoteEditor> {
         autovalidateMode: AutovalidateMode.always,
         onSaved: (value) => _title = value,
       ),
-      TextFormField(
-        decoration: InputDecoration(labelText: "Note content"),
-        initialValue: _content,
-        validator: (value) {
-          _content = value;
-          return validForm() ? null : "Title and content can't be both empty";
-        },
-        autovalidateMode: AutovalidateMode.always,
-        onSaved: (value) => _content = value,
+
+      Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: TextFormField(
+          decoration: InputDecoration(labelText: "Note content"),
+          style: TextStyle(
+            fontSize: 22,
+          ),
+          initialValue: _content,
+          validator: (value) {
+            _content = value;
+            return validForm() ? null : "Title and content can't be both empty";
+          },
+          autovalidateMode: AutovalidateMode.always,
+          onSaved: (value) => _content = value,
+        ),
       ),
+
+      Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: TextButton(
+          onPressed: _submit,
+          child: Text(
+          "Save",
+          style: TextStyle(
+          color: Colors.blue,
+          fontSize: 20
+          ),
+          ))
+    )
     ];
   }
 
